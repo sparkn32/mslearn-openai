@@ -29,6 +29,12 @@ Console.WriteLine("Enter a question:");
 string text = Console.ReadLine() ?? "";
 
 // Configure your data source
+AzureSearchChatExtensionConfiguration ownDataConfig = new()
+{
+        SearchEndpoint = new Uri(azureSearchEndpoint),
+        Authentication = new OnYourDataApiKeyAuthenticationOptions(azureSearchKey),
+        IndexName = azureSearchIndex
+};
 
 
 // Send request to Azure OpenAI model  
