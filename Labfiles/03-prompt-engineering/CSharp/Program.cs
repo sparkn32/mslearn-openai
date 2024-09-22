@@ -1,4 +1,4 @@
-﻿// Implicit using statements are included
+// Implicit using statements are included
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration.Json;
 using Azure;
 
 // Add Azure OpenAI package
+using Azure.AI.OpenAI;
 
 
 // Build a config object and retrieve user settings.
@@ -57,9 +58,28 @@ async Task GetResponseFromOpenAI(string systemMessage, string userMessage)
     }
     
     // Configure the Azure OpenAI client
+    OpenAIClient client = new OpenAIClient(new Uri(oaiEndpoint), new AzureKeyCredential(oaiKey));
 
 
     // Format and send the request to the model
+    // Format and send the request to the model
+    Console.WriteLine("\nAdding grounding context from grounding.txt");
+    string groundingText = System.IO.File.ReadAllText("grounding.txt");
+    userMessage = groundingText + userMessage;
+    var chatCompletionsOptions = new ChatCompletionsOptions()
+    {
+        Messages =
+        {
+            new ChatRequestSystemMessage(systemMessage),
+            new ChatRequestUserMessage(userMessage)
+        },
+        Temperature = 0.7f,
+        MaxTokens = 800,
+        DeploymentName = oaiDeploymentName
+    };
+
+    // Get response from Azure OpenAI
+    Response<ChatCompletions> response = await client.GetChatCompletionsAsync(chatCompletionsOptions);
 
     
     ChatCompletions completions = response.Value;
